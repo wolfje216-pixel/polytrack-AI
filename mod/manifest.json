@@ -1,0 +1,9 @@
+{
+  "id": "polytrack_ai_lab",
+  "name": "PolyTrack AI Lab",
+  "version": "0.1.0",
+  "author": "Local AI experiment",
+  "gameVersion": "0.6.0",
+  "entry": "mod.js",
+  "description": "Experimental AI-driver starter."
+}

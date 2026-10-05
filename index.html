@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PolyTrack AI Lab</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+<header><div><div class="eyebrow">POLYTRACK AI LAB</div><h1>AI Driver</h1>
+<p>Train an experimental driver and watch its progress.</p></div>
+<a class="play" href="https://app-polytrack.kodub.com/" target="_blank" rel="noopener">Open PolyTrack ↗</a></header>
+<section class="grid">
+<div class="card"><h2>Track code</h2><textarea id="track" placeholder="Paste your PolyTrack track code here..."></textarea>
+<div class="row"><button id="save">Save track</button><button id="clear" class="secondary">Clear</button></div>
+<p id="trackStatus" class="muted">No track loaded.</p></div>
+<div class="card"><h2>Training</h2><div class="stats">
+<div><span>Episode</span><strong id="episode">0</strong></div><div><span>Best</span><strong id="best">—</strong></div>
+<div><span>States</span><strong id="states">0</strong></div><div><span>Exploration</span><strong id="epsilon">20%</strong></div></div>
+<div class="row"><button id="start">Start training</button><button id="stop" class="danger">Stop</button></div>
+<div class="bar"><div id="progress"></div></div><p id="status" class="muted">Ready.</p></div>
+<div class="card wide"><h2>Learning view</h2><canvas id="view" width="900" height="360"></canvas>
+<p class="muted">This is the AI training visualization. The dashboard cannot directly control a separately opened PolyTrack tab because of browser same-origin rules.</p></div>
+<div class="card wide"><h2>Next step</h2><p>For actual in-game control, use the included mod starter with a compatible PolyTrack mod loader. The starter deliberately does not alter physics or submit leaderboard runs.</p></div>
+</section></main><script src="ai.js"></script></body></html>

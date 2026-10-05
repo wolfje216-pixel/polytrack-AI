@@ -1,0 +1,16 @@
+const trackEl=document.getElementById("track"),statusEl=document.getElementById("status"),trackStatus=document.getElementById("trackStatus"),episodeEl=document.getElementById("episode"),bestEl=document.getElementById("best"),statesEl=document.getElementById("states"),progressEl=document.getElementById("progress"),canvas=document.getElementById("view"),ctx=canvas.getContext("2d");
+let brain=JSON.parse(localStorage.getItem("polytrack-ai-brain")||"{}"),running=false,episode=0,best=null,epsilon=.20;
+const path=[[70,280],[120,280],[170,270],[220,240],[260,190],[300,150],[350,145],[400,170],[450,220],[500,270],[550,280],[600,240],[650,180],[700,130],[750,120],[800,145],[850,200]];
+function saveBrain(){localStorage.setItem("polytrack-ai-brain",JSON.stringify(brain))}
+function stateAt(i){let p=path[i],a=path[Math.max(0,i-1)],b=path[Math.min(path.length-1,i+1)],ang=Math.round(Math.atan2(b[1]-a[1],b[0]-a[0])*10)/10;return `${Math.round((p[0]-450)/50)}|${ang}`}
+function q(s){return brain[s]||(brain[s]=[0,0,0])}
+function choose(s){if(Math.random()<epsilon)return Math.floor(Math.random()*3);let a=q(s),m=Math.max(...a);return a.indexOf(m)}
+function learn(s,a,r,ns){let v=q(s),n=q(ns);v[a]+=.18*(r+.92*Math.max(...n)-v[a])}
+function draw(i=0,action=0){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.strokeStyle="#30363d";ctx.lineWidth=52;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(...path[0]);path.slice(1).forEach(p=>ctx.lineTo(...p));ctx.stroke();ctx.strokeStyle="#8b949e";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(...path[0]);path.slice(1).forEach(p=>ctx.lineTo(...p));ctx.stroke();let p=path[i];ctx.fillStyle="#7ee787";ctx.beginPath();ctx.arc(p[0],p[1],12,0,Math.PI*2);ctx.fill();ctx.fillStyle="#e6edf3";ctx.font="16px system-ui";ctx.fillText("AI: "+["STRAIGHT","LEFT","RIGHT"][action],20,28)}
+function stats(){episodeEl.textContent=episode;statesEl.textContent=Object.keys(brain).length;bestEl.textContent=best??"—";document.getElementById("epsilon").textContent=Math.round(epsilon*100)+"%"}
+async function train(){let score=0;for(let i=0;i<path.length-1&&running;i++){let s=stateAt(i),ns=stateAt(i+1),a=choose(s),ideal=path[i+1][1]-path[i][1]<-3?1:path[i+1][1]-path[i][1]>3?2:0,r=a===ideal?10:-3;learn(s,a,r,ns);score+=r;draw(i,a);progressEl.style.width=((i+1)/(path.length-1)*100)+"%";await new Promise(r=>setTimeout(r,18))}return score}
+document.getElementById("save").onclick=()=>{let v=trackEl.value.trim();if(!v){trackStatus.textContent="Paste a track code first.";return}localStorage.setItem("polytrack-ai-track",v);trackStatus.textContent=`Track code saved locally (${v.length} characters).`};
+document.getElementById("clear").onclick=()=>{trackEl.value="";localStorage.removeItem("polytrack-ai-track");trackStatus.textContent="No track loaded."};
+document.getElementById("stop").onclick=()=>{running=false;statusEl.textContent="Stopped."};
+document.getElementById("start").onclick=async()=>{if(running)return;running=true;while(running&&episode<1000){episode++;let s=await train();best=best===null?s:Math.max(best,s);epsilon=Math.max(.03,epsilon*.997);saveBrain();stats();statusEl.textContent=`Episode ${episode} — score ${s}`}};
+let saved=localStorage.getItem("polytrack-ai-track");if(saved){trackEl.value=saved;trackStatus.textContent=`Saved track loaded (${saved.length} characters).`}stats();draw();
